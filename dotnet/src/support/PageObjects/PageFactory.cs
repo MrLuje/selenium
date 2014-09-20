@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using OpenQA.Selenium.Interactions.Internal;
 using OpenQA.Selenium.Internal;
@@ -187,7 +188,9 @@ namespace OpenQA.Selenium.Support.PageObjects
         private static List<By> CreateLocatorList(MemberInfo member)
         {
             var useSequenceAttributes = Attribute.GetCustomAttributes(member, typeof(FindsBySequenceAttribute), true);
+            var useOrderedAttributes = Attribute.GetCustomAttributes(member, typeof(OrderedFindsAttribute), true);
             bool useSequence = useSequenceAttributes.Length > 0;
+            bool useOrdered = useOrderedAttributes.Length > 0;
 
             List<By> bys = new List<By>();
             var attributes = Attribute.GetCustomAttributes(member, typeof(FindsByAttribute), true);
@@ -210,6 +213,13 @@ namespace OpenQA.Selenium.Support.PageObjects
                     ByChained chained = new ByChained(bys.ToArray());
                     bys.Clear();
                     bys.Add(chained);
+                }
+
+                if (useOrdered)
+                {
+                    ByOrdered ordered = new ByOrdered(bys.ToArray());
+                    bys.Clear();
+                    bys.Add(ordered);
                 }
             }
 
